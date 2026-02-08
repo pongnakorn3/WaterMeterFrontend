@@ -1,0 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap');
+
+body {
+  font-family: 'Sarabun', sans-serif;
+  background-color: #f4f6f8;
+  margin: 0; padding: 0;
+  color: #333;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 30px;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 20px;
+}
+
+h1 { margin: 0; color: #2c3e50; }
+
+.refresh-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s;
+}
+.refresh-btn:hover { background: #0056b3; transform: scale(1.05); }
+
+table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+th { text-align: left; padding: 15px; background: #f8f9fa; color: #666; font-weight: 600; }
+td { padding: 15px; border-bottom: 1px solid #eee; vertical-align: middle; }
+tr:hover { background-color: #fafafa; }
+
+/* Badges */
+.badge { padding: 6px 12px; border-radius: 20px; font-size: 0.85em; font-weight: 600; }
+.badge-water { background: #e3f2fd; color: #1565c0; }
+.badge-electric { background: #fff3e0; color: #e65100; }
+
+.reading-value { font-size: 1.2em; font-weight: bold; color: #333; font-family: monospace; }
+
+.meter-img {
+  width: 70px; height: 70px; object-fit: cover;
+  border-radius: 8px; border: 1px solid #ddd;
+  cursor: pointer; transition: 0.2s;
+}
+.meter-img:hover { transform: scale(1.5); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }

@@ -3,7 +3,7 @@ import axios from 'axios';
 import Login from './Login';
 
 // ✅ Config
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = 'https://watermeterbackend-production.up.railway.app';
 
 function App() {
   const [user, setUser] = useState(null);

@@ -151,7 +151,7 @@ function App() {
         </div>
         <div style={{ textAlign: 'right' }}>
             <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
-                 <span>👤 Admin</span>
+                 <span>👤 {user?.name || user?.username}</span>
                  <button onClick={() => setUser(null)} style={styles.logoutBtn}>ออกจากระบบ</button>
             </div>
         </div>
@@ -271,7 +271,7 @@ function App() {
                             <td style={{...styles.mainTd, textAlign: 'center', color: '#28a745', fontWeight: 'bold'}}>+{item.usage}</td>
                             <td style={{...styles.mainTd, textAlign: 'right'}}>{totalPrice.toLocaleString()}</td>
                             <td style={{...styles.mainTd, textAlign: 'right'}}>{Math.ceil(perPerson).toLocaleString()}</td>
-                            <td style={{...styles.mainTd, textAlign: 'center', color: '#888'}}>Admin</td>
+                            <td style={{...styles.mainTd, textAlign: 'center', color: '#888'}}>{item.recorder_name || '-'}</td>
                         </tr>
                     );
                 })}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Login from './Login';
+import * as XLSX from 'xlsx';
 
 // ✅ Config
 const API_BASE_URL = 'https://watermeterbackend-production.up.railway.app';
@@ -80,36 +81,52 @@ function App() {
 
   const handleExport = () => {
     if (sortedReadings.length === 0) return alert("ไม่มีข้อมูล");
-    let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
-    
-    // ✅ 1. แก้ไขหัวตาราง Excel: แยกคอลัมน์เป็น 'เลขตั้งต้น' และ 'เลขปัจจุบัน'
-    csvContent += "วันที่,ห้อง,รหัสนักศึกษา,ผู้เช่า,ประเภท,เลขตั้งต้น,เลขปัจจุบัน,หน่วยที่ใช้,ยอดเงิน\n";
-    
-    sortedReadings.forEach(item => {
+
+    // 1. จัดเตรียมข้อมูลให้อยู่ในรูปแบบที่ Excel เข้าใจง่าย
+    const dataToExport = sortedReadings.map(item => {
         const unitPrice = item.meter_type === 'water' ? rates.water : rates.electric;
         const totalPrice = (item.usage || 0) * unitPrice;
         const prevReading = item.previous_reading ? item.previous_reading : (item.reading_value - (item.usage || 0));
         
-        const row = [
-            `"${new Date(item.created_at).toLocaleDateString('th-TH')}"`, 
-            `"${item.room_number}"`,
-            `"${item.student_ids || '-'}"`,
-            `"${item.tenant_names || '-'}"`,
-            `"${item.meter_type === 'water' ? 'ประปา' : 'ไฟฟ้า'}"`,
-            `"${prevReading}"`,          // ✅ 2. คอลัมน์เลขตั้งต้น (ครั้งก่อน)
-            `"${item.reading_value}"`, // ✅ 3. คอลัมน์เลขปัจจุบัน (ครั้งนี้)
-            item.usage,
-            totalPrice
-        ].join(",");
-        csvContent += row + "\n";
+        // ✅ เพิ่มการคำนวณยอดหารตรงนี้
+        const perPerson = item.tenant_count > 0 ? totalPrice / item.tenant_count : totalPrice;
+
+        return {
+            "วันที่": new Date(item.created_at).toLocaleDateString('th-TH'),
+            "ห้อง": item.room_number,
+            "รหัสนักศึกษา": item.student_ids || '-',
+            "ผู้เช่า": item.tenant_names || '-',
+            "ประเภท": item.meter_type === 'water' ? 'ประปา' : 'ไฟฟ้า',
+            "เลขตั้งต้น": prevReading,
+            "เลขปัจจุบัน": item.reading_value,
+            "หน่วยที่ใช้": item.usage,
+            "ยอดรวม": totalPrice,
+            "ยอดหาร": Math.ceil(perPerson) // ✅ ปัดเศษขึ้นให้เหมือนหน้าเว็บ
+        };
     });
-    
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `report_${selectedMonth}.csv`);
-    document.body.appendChild(link);
-    link.click();
+
+    // 2. สร้างไฟล์ Excel และนำข้อมูลใส่ลงไป
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
+
+    // 3. 🎨 ตกแต่งความกว้างของคอลัมน์ให้สวยงาม (เพิ่มคอลัมน์ยอดหารเข้ามา)
+    const wscols = [
+        { wch: 12 }, // วันที่
+        { wch: 8 },  // ห้อง
+        { wch: 20 }, // รหัสนักศึกษา
+        { wch: 35 }, // ผู้เช่า
+        { wch: 10 }, // ประเภท
+        { wch: 12 }, // เลขตั้งต้น
+        { wch: 12 }, // เลขปัจจุบัน
+        { wch: 12 }, // หน่วยที่ใช้
+        { wch: 12 }, // ยอดรวม
+        { wch: 12 }  // ✅ ยอดหาร
+    ];
+    worksheet['!cols'] = wscols;
+
+    // 4. สั่งดาวน์โหลดไฟล์เป็น .xlsx
+    XLSX.writeFile(workbook, `report_${selectedMonth}.xlsx`);
   };
 
   if (!user) return <Login onLoginSuccess={(userData) => setUser(userData)} />;

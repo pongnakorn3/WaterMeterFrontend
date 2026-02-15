@@ -59,6 +59,13 @@ function App() {
     } catch (error) { alert("ลบไม่สำเร็จ"); }
   };
 
+  // ✅ ฟังก์ชันสำหรับดักการกดออกจากระบบ
+  const handleLogout = () => {
+    if (window.confirm("คุณต้องการออกจากระบบใช่หรือไม่?")) {
+      setUser(null);
+    }
+  };
+
   // --- Logic ---
   const filteredReadings = readings.filter(item => {
     const matchMonth = !selectedMonth || (item.created_at && item.created_at.startsWith(selectedMonth));
@@ -185,7 +192,8 @@ function App() {
         <div style={{ textAlign: 'right' }}>
             <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
                  <span>👤 {user?.name || user?.username}</span>
-                 <button onClick={() => setUser(null)} style={styles.logoutBtn}>ออกจากระบบ</button>
+                 {/* ✅ เรียกใช้ฟังก์ชัน handleLogout ตรงนี้ */}
+                 <button onClick={handleLogout} style={styles.logoutBtn}>ออกจากระบบ</button>
             </div>
         </div>
       </div>

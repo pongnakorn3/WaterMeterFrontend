@@ -79,11 +79,12 @@ function App() {
   });
 
   const handleExport = () => {
-    // ✅ เปลี่ยนมาใช้ sortedReadings
     if (sortedReadings.length === 0) return alert("ไม่มีข้อมูล");
     let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
-    csvContent += "วันที่,ห้อง,รหัสนักศึกษา,ผู้เช่า,ประเภท,เลขมิเตอร์,หน่วยที่ใช้,ยอดเงิน\n";
-    // ✅ เปลี่ยนมาใช้ sortedReadings
+    
+    // ✅ 1. แก้ไขหัวตาราง Excel: แยกคอลัมน์เป็น 'เลขตั้งต้น' และ 'เลขปัจจุบัน'
+    csvContent += "วันที่,ห้อง,รหัสนักศึกษา,ผู้เช่า,ประเภท,เลขตั้งต้น,เลขปัจจุบัน,หน่วยที่ใช้,ยอดเงิน\n";
+    
     sortedReadings.forEach(item => {
         const unitPrice = item.meter_type === 'water' ? rates.water : rates.electric;
         const totalPrice = (item.usage || 0) * unitPrice;
@@ -95,12 +96,14 @@ function App() {
             `"${item.student_ids || '-'}"`,
             `"${item.tenant_names || '-'}"`,
             `"${item.meter_type === 'water' ? 'ประปา' : 'ไฟฟ้า'}"`,
-            `"${prevReading} - ${item.reading_value}"`,
+            `"${prevReading}"`,          // ✅ 2. คอลัมน์เลขตั้งต้น (ครั้งก่อน)
+            `"${item.reading_value}"`, // ✅ 3. คอลัมน์เลขปัจจุบัน (ครั้งนี้)
             item.usage,
             totalPrice
         ].join(",");
         csvContent += row + "\n";
     });
+    
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);

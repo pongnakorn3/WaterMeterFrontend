@@ -140,7 +140,7 @@ function App() {
     mainTd: { padding: '15px', borderBottom: '1px solid #eee', fontSize: '14px', color: '#333' },
     
     // ✅ สไตล์สำหรับรูปภาพ
-    imgThumbnail: { width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ddd', cursor: 'zoom-in' }
+    imgThumbnail: { width: '100px', height: 'auto', maxHeight: '80px', objectFit: 'contain', borderRadius: '4px', border: '1px solid #ddd', cursor: 'zoom-in' }
   };
 
   return (

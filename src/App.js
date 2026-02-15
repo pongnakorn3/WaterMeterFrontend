@@ -60,9 +60,7 @@ function App() {
 
   // --- Logic ---
   const filteredReadings = readings.filter(item => {
-    // ✅ กรองตามเดือนที่เลือก
     const matchMonth = !selectedMonth || (item.created_at && item.created_at.startsWith(selectedMonth));
-    
     const term = searchTerm.toLowerCase();
     const matchSearch = !searchTerm || 
                         (item.room_number && item.room_number.toLowerCase().includes(term)) ||
@@ -70,11 +68,23 @@ function App() {
     return matchMonth && matchSearch;
   });
 
+  // ✅ นำข้อมูลมากรองให้ 'น้ำ' ขึ้นก่อน 'ไฟ' และเรียงตามเลขห้อง
+  const sortedReadings = [...filteredReadings].sort((a, b) => {
+      // 1. เรียงประเภท: ให้ 'water' (ประปา) มาก่อน
+      if (a.meter_type === 'water' && b.meter_type !== 'water') return -1;
+      if (a.meter_type !== 'water' && b.meter_type === 'water') return 1;
+      
+      // 2. ถ้าประเภทเดียวกัน ให้เรียงตามเลขห้องจากน้อยไปมาก
+      return a.room_number.localeCompare(b.room_number, undefined, {numeric: true});
+  });
+
   const handleExport = () => {
-    if (filteredReadings.length === 0) return alert("ไม่มีข้อมูล");
+    // ✅ เปลี่ยนมาใช้ sortedReadings
+    if (sortedReadings.length === 0) return alert("ไม่มีข้อมูล");
     let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
     csvContent += "วันที่,ห้อง,รหัสนักศึกษา,ผู้เช่า,ประเภท,เลขมิเตอร์,หน่วยที่ใช้,ยอดเงิน\n";
-    filteredReadings.forEach(item => {
+    // ✅ เปลี่ยนมาใช้ sortedReadings
+    sortedReadings.forEach(item => {
         const unitPrice = item.meter_type === 'water' ? rates.water : rates.electric;
         const totalPrice = (item.usage || 0) * unitPrice;
         const prevReading = item.previous_reading ? item.previous_reading : (item.reading_value - (item.usage || 0));
@@ -248,12 +258,12 @@ function App() {
                     <th style={{...styles.mainTh, textAlign: 'right'}}>ยอดรวม</th>
                     <th style={{...styles.mainTh, textAlign: 'right'}}>ยอดหาร</th>
                     <th style={{...styles.mainTh, textAlign: 'center'}}>ผู้จด</th>
-                    {/* ✅ เพิ่มหัวตาราง รูปภาพ */}
                     <th style={{...styles.mainTh, textAlign: 'center'}}>รูปภาพ</th>
                 </tr>
             </thead>
             <tbody>
-                {filteredReadings.map((item, index) => {
+                {/* ✅ เปลี่ยนมาใช้ sortedReadings */}
+                {sortedReadings.map((item, index) => {
                     const unitPrice = item.meter_type === 'water' ? rates.water : rates.electric;
                     const totalPrice = (item.usage || 0) * unitPrice;
                     const perPerson = item.tenant_count > 0 ? totalPrice / item.tenant_count : totalPrice;
@@ -276,7 +286,6 @@ function App() {
                             <td style={{...styles.mainTd, textAlign: 'right'}}>{Math.ceil(perPerson).toLocaleString()}</td>
                             <td style={{...styles.mainTd, textAlign: 'center', color: '#888'}}>{item.recorder_name || '-'}</td>
                             
-                            {/* ✅ คอลัมน์แสดงรูปภาพ */}
                             <td style={{...styles.mainTd, textAlign: 'center'}}>
                                 {item.image_url ? (
                                     <a href={`${API_BASE_URL}/${item.image_url}`} target="_blank" rel="noopener noreferrer" title="คลิกเพื่อดูรูปใหญ่">
@@ -289,8 +298,8 @@ function App() {
                         </tr>
                     );
                 })}
-                {/* ✅ เปลี่ยน colSpan เป็น 11 เพราะเราเพิ่มคอลัมน์รูปภาพมา */}
-                {filteredReadings.length === 0 && (
+                {/* ✅ เปลี่ยนมาใช้ sortedReadings */}
+                {sortedReadings.length === 0 && (
                     <tr><td colSpan="11" style={{textAlign:'center', padding:'30px', color:'#999'}}>ไม่พบข้อมูลมิเตอร์เดือน {selectedMonth}</td></tr>
                 )}
             </tbody>

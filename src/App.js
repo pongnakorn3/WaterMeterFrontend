@@ -137,7 +137,10 @@ function App() {
     mainTableContainer: { backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', overflow: 'hidden' },
     mainTable: { width: '100%', borderCollapse: 'collapse' },
     mainTh: { backgroundColor: '#f1f3f5', padding: '15px', textAlign: 'left', color: '#666', fontSize: '14px', fontWeight: 'bold' },
-    mainTd: { padding: '15px', borderBottom: '1px solid #eee', fontSize: '14px', color: '#333' }
+    mainTd: { padding: '15px', borderBottom: '1px solid #eee', fontSize: '14px', color: '#333' },
+    
+    // ✅ สไตล์สำหรับรูปภาพ
+    imgThumbnail: { width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ddd', cursor: 'zoom-in' }
   };
 
   return (
@@ -168,14 +171,12 @@ function App() {
             </div>
          </div>
          <div style={{ display: 'flex', alignItems: 'center' }}>
-            {/* ✅ ใส่ช่องเลือกเดือนกลับมาแล้ว ตรงนี้ครับ */}
             <input 
                 type="month" 
                 value={selectedMonth} 
                 onChange={(e) => setSelectedMonth(e.target.value)}
                 style={styles.dateInput}
             />
-
             <input 
                 type="text" 
                 placeholder="🔍 ค้นหา" 
@@ -247,6 +248,8 @@ function App() {
                     <th style={{...styles.mainTh, textAlign: 'right'}}>ยอดรวม</th>
                     <th style={{...styles.mainTh, textAlign: 'right'}}>ยอดหาร</th>
                     <th style={{...styles.mainTh, textAlign: 'center'}}>ผู้จด</th>
+                    {/* ✅ เพิ่มหัวตาราง รูปภาพ */}
+                    <th style={{...styles.mainTh, textAlign: 'center'}}>รูปภาพ</th>
                 </tr>
             </thead>
             <tbody>
@@ -272,11 +275,23 @@ function App() {
                             <td style={{...styles.mainTd, textAlign: 'right'}}>{totalPrice.toLocaleString()}</td>
                             <td style={{...styles.mainTd, textAlign: 'right'}}>{Math.ceil(perPerson).toLocaleString()}</td>
                             <td style={{...styles.mainTd, textAlign: 'center', color: '#888'}}>{item.recorder_name || '-'}</td>
+                            
+                            {/* ✅ คอลัมน์แสดงรูปภาพ */}
+                            <td style={{...styles.mainTd, textAlign: 'center'}}>
+                                {item.image_url ? (
+                                    <a href={`${API_BASE_URL}/${item.image_url}`} target="_blank" rel="noopener noreferrer" title="คลิกเพื่อดูรูปใหญ่">
+                                        <img src={`${API_BASE_URL}/${item.image_url}`} alt="meter" style={styles.imgThumbnail} />
+                                    </a>
+                                ) : (
+                                    <span style={{color: '#ccc'}}>-</span>
+                                )}
+                            </td>
                         </tr>
                     );
                 })}
+                {/* ✅ เปลี่ยน colSpan เป็น 11 เพราะเราเพิ่มคอลัมน์รูปภาพมา */}
                 {filteredReadings.length === 0 && (
-                    <tr><td colSpan="10" style={{textAlign:'center', padding:'30px', color:'#999'}}>ไม่พบข้อมูลมิเตอร์เดือน {selectedMonth}</td></tr>
+                    <tr><td colSpan="11" style={{textAlign:'center', padding:'30px', color:'#999'}}>ไม่พบข้อมูลมิเตอร์เดือน {selectedMonth}</td></tr>
                 )}
             </tbody>
          </table>
